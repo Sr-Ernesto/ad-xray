@@ -3,36 +3,40 @@ version: '3.8'
 services:
   api:
     build: .
-    ports:
-      - "8010:8000"
     environment:
-      - POSTGRES_USER=supabase_admin
-      - POSTGRES_PASSWORD=J05CapmOrYutpGIUM6xnz5luZt4g891v
-      - POSTGRES_DB=postgres
-      - POSTGRES_HOST=172.18.0.2
-      - POSTGRES_PORT=5432
-      - REDIS_URL=redis://172.18.0.3:6379/0
-      - MINIO_ENDPOINT=https://s3.osbrai.com
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - MINIO_BUCKET=publico
-    volumes:
-      - .:/app
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_URL=${REDIS_URL}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENCLAW_MODEL=${OPENCLAW_MODEL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adxray-api.rule=Host(`ad-xray.osbrai.com`)"
+      - "traefik.http.routers.adxray-api.entrypoints=websecure"
+      - "traefik.http.routers.adxray-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.adxray-api.loadbalancer.server.port=8000"
 
   worker:
     build: .
     command: celery -A api.workers.celery_app worker --loglevel=info -Q harvester,inspector,downloader,celery
     environment:
-      - POSTGRES_USER=supabase_admin
-      - POSTGRES_PASSWORD=J05CapmOrYutpGIUM6xnz5luZt4g891v
-      - POSTGRES_DB=postgres
-      - POSTGRES_HOST=172.18.0.2
-      - POSTGRES_PORT=5432
-      - REDIS_URL=redis://172.18.0.3:6379/0
-      - MINIO_ENDPOINT=https://s3.osbrai.com
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - MINIO_BUCKET=publico
-    volumes:
-      - .:/app
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_URL=${REDIS_URL}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENCLAW_MODEL=${OPENCLAW_MODEL}
     shm_size: '2gb'
