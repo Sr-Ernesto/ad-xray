@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8010:8000"
+    environment:
+      - POSTGRES_USER=supabase_admin
+      - POSTGRES_PASSWORD=J05CapmOrYutpGIUM6xnz5luZt4g891v
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=172.18.0.2
+      - POSTGRES_PORT=5432
+      - REDIS_URL=redis://172.18.0.3:6379/0
+      - MINIO_ENDPOINT=https://s3.osbrai.com
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=publico
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    command: celery -A api.workers.celery_app worker --loglevel=info -Q harvester,inspector,downloader,celery
+    environment:
+      - POSTGRES_USER=supabase_admin
+      - POSTGRES_PASSWORD=J05CapmOrYutpGIUM6xnz5luZt4g891v
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=172.18.0.2
+      - POSTGRES_PORT=5432
+      - REDIS_URL=redis://172.18.0.3:6379/0
+      - MINIO_ENDPOINT=https://s3.osbrai.com
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=publico
+    volumes:
+      - .:/app
+    shm_size: '2gb'
