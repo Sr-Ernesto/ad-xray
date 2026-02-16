@@ -23,3 +23,7 @@ app.include_router(results.router, prefix="/api/v1")
 @app.get("/")
 def root():
     return {"message": "AD-XRAY API is running"}
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
